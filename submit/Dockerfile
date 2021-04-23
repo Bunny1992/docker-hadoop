@@ -1,6 +1,6 @@
-FROM bde2020/hadoop-base:2.0.0-hadoop3.2.1-java8
+FROM bde2020/hadoop-base
 
-MAINTAINER Ivan Ermilov <ivan.s.ermilov@gmail.com>
+MAINTAINER Nishant Bannikoppa <nishant.bannikoppa@esds.co.in>
 
 COPY WordCount.jar /opt/hadoop/applications/WordCount.jar
 
