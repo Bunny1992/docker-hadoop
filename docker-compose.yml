@@ -313,6 +313,58 @@ services:
       - PYSPARK_PYTHON=/usr/bin/python3
       - PYSPARK_DRIVER_PYTHON=/opt/conda/bin/python
 
+  db:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    container_name: ranger-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ranger
+      MYSQL_USER: ranger
+      MYSQL_PASSWORD: ranger
+    expose:
+      - "3306"
+
+  ranger-admin:
+    image: kadensungbincho/ranger-admin:2.1.0
+    container_name: ranger-admin
+    hostname: ranger
+    depends_on:
+      - db
+    volumes:
+      - ./admin/bootstrap.sh:/opt/ranger_admin/bootstrap.sh
+      - ./admin/install.properties:/opt/ranger_admin/install.properties
+    command: ["./bootstrap.sh"]
+    ports:
+      - "6080:6080"
+    restart: always
+
+  ranger-usersync:
+    image: kadensungbincho/ranger-usersync:2.1.0
+    container_name: ranger-usersync
+    hostname: usersync
+    depends_on:
+      - ranger-admin
+    volumes:
+      - ./usersync/bootstrap.sh:/opt/ranger_usersync/bootstrap.sh
+      - ./usersync/install.properties:/opt/ranger_usersync/install.properties
+    command: ["./bootstrap.sh"]
+    restart: always
+
+  ranger-usersync-ldap:
+    image: kadensungbincho/ranger-usersync:2.1.0
+    container_name: ranger2.0.0-usersync-ldap
+    hostname: usersync-ldap
+    depends_on:
+      - ranger-admin
+    volumes:
+      - ./usersync/bootstrap-ldap.sh:/opt/ranger_usersync/bootstrap.sh
+      - ./usersync/install-ldap.properties:/opt/ranger_usersync/install-hdfs.properties
+      - ./usersync/templates:/templates
+      - ./usersync/conf.dist/log4j.properties:/opt/ranger_usersync/conf.dist/log4j.properties
+
   zookeeper: 
     container_name: zookeeper
     environment: 
@@ -325,11 +377,6 @@ services:
       - zookeeper:/var/lib/zookeeper
     networks:
        - DL-net
-
-networks:
-  DL-net:
-    external:
-      name: DL-net
       
 volumes:
   namenode:
@@ -340,3 +387,11 @@ volumes:
   nifi:
   zeppelin:
   jupyter_data:
+  db_data:
+
+networks:
+  DL-net:
+    name: DL-net
+  default:
+    external:
+      name: ranger-env
