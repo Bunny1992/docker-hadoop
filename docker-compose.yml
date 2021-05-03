@@ -17,6 +17,8 @@ services:
       - CLUSTER_NAME=test
     env_file:
       - ./hadoop.env
+    networks:
+       - DL-net
 
   datanode:
     image: bde2020/hadoop-datanode
@@ -31,7 +33,9 @@ services:
       SERVICE_PRECONDITION: "namenode:9870"
     env_file:
       - ./hadoop.env
-  
+    networks:
+       - DL-net
+       
   resourcemanager:
     image: bde2020/hadoop-resourcemanager
     container_name: resourcemanager
@@ -42,7 +46,9 @@ services:
       SERVICE_PRECONDITION: "namenode:8020 namenode:9870 datanode:9864"
     env_file:
       - ./hadoop.env
-
+    networks:
+       - DL-net
+       
   nodemanager1:
     image: bde2020/hadoop-nodemanager
     container_name: nodemanager
@@ -53,7 +59,9 @@ services:
       SERVICE_PRECONDITION: "namenode:8020 namenode:9870 datanode:9864 resourcemanager:8088"
     env_file:
       - ./hadoop.env
-  
+    networks:
+       - DL-net
+       
   historyserver:
     image: bde2020/hadoop-historyserver
     container_name: historyserver
@@ -66,7 +74,9 @@ services:
       - historyserver:/hadoop/yarn/timeline
     env_file:
       - ./hadoop.env
-  
+    networks:
+       - DL-net
+       
   spark-master:
     image: bde2020/spark-master
     container_name: spark-master
@@ -83,7 +93,9 @@ services:
     links:
       - namenode
       - datanode
-      
+    networks:
+      - DL-net
+        
   spark-worker-1:
     image: bde2020/spark-worker
     container_name: spark-worker-1
@@ -97,17 +109,24 @@ services:
       - SPARK_PUBLIC_DNS=localhost
     links:
       - spark-master
+    networks:
+       - DL-net
+      
   hue:
-    image: bde2020/hdfs-filebrowser:3.11
+    image: gethue/hue
     container_name: hue
     ports:
-      - "8089:8089"
+      - "8888:8888"
     environment:
       - NAMENODE_HOST=namenode
       - SPARK_MASTER=spark://spark-master:7077
+    volumes: 
+      - ./hue/hue-overrides.ini:/usr/share/hue/desktop/conf/z-hue.ini
     links:
       - spark-master
-  
+    networks:
+       - DL-net
+       
   hive-server:
     image: bde2020/hive
     container_name: hive-server
@@ -120,6 +139,8 @@ services:
       - hive-metastore
     ports:
       - 10000:10000
+    networks:
+       - DL-net
 
   hive-metastore-postgresql:
     image: bde2020/hive-metastore-postgresql
@@ -136,7 +157,25 @@ services:
     command: /opt/hive/bin/hive --service metastore
     ports:
       - 9083:9083
-      
+    networks:
+       - DL-net
+       
+  database:
+    image: mysql
+    container_name: database
+    ports:
+      - "3306:3306"
+    command: --init-file /data/application/init.sql
+    volumes:
+      - /tmp/mysql/data:/var/lib/mysql
+      - ./init.sql:/data/application/init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: hue
+    restart: unless-stopped
+    networks:
+       - DL-net
+           
   nifi: 
     environment: 
       - NIFI_WEB_HTTP_PORT=8080
@@ -162,7 +201,9 @@ services:
       - nifi:/opt/nifi/database_repository
       - nifi:/opt/nifi/content_repository
       - nifi:/opt/nifi/provenance_repository
-      
+    networks:
+       - DL-net
+       
   kafka:
     build: .
     links:
@@ -178,6 +219,8 @@ services:
     volumes:
       - kafka:/var/lib/kafka
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+       - DL-net
 
   kafka_manager:
     image: hlebalbau/kafka-manager
@@ -193,6 +236,8 @@ services:
     depends_on:
       - "zookeeper"
       - "kafka"
+    networks:
+       - DL-net
     
   prometheus:
     image: prom/prometheus
@@ -202,6 +247,8 @@ services:
       - ./prometheus:/etc/prometheus
     links:
       - kafka
+    networks:
+       - DL-net
   
   grafana:
     image: grafana/grafana:6.1.1
@@ -216,6 +263,8 @@ services:
       - ./grafana/provisioning/:/etc/grafana/provisioning/
     depends_on:
       - "prometheus"
+    networks:
+       - DL-net
       
   zeppelin:
     image: apache/zeppelin:0.9.0
@@ -233,18 +282,36 @@ services:
       - ./zeppelin/zeppelin-interpreters/interpreter.json:/zeppelin/conf/interpreter.json
       - ./data:/data
       - ./data:/opt/zeppelin/data
-  #    - ./zeppelin/conf:/opt/zeppelin/conf
+      #- ./zeppelin/conf:/opt/zeppelin/conf
       - ./zeppelin/logs:/opt/zeppelin/logs
-      - ./zeppelin/notebooks:/opt/zeppelin/notebook
+      #- ./zeppelin/notebooks:/opt/zeppelin/notebook
       - ./zeppelin/examples:/opt/sansa-examples
     environment:
-      CORE_CONF_fs_defaultFS: "hdfs://namenode:9000"
+      CORE_CONF_fs_defaultFS: "hdfs://namenode:8020"
       SPARK_MASTER: "spark://spark-master:7077"
       MASTER: "spark://spark-master:7077"
       SPARK_SUBMIT_OPTIONS: "--jars /opt/sansa-examples/jars/sansa-examples-spark.jar --conf spark.serializer=org.apache.spark.serializer.KryoSerializer"
     links:
       - spark-master
-  
+      - namenode
+    networks:
+       - DL-net
+      
+  jupyter-lab:
+    image: jupyterhub/singleuser
+    depends_on:
+      - spark-master
+      - namenode
+    volumes:
+      - jupyter_data:/home/jovyan/work:rw
+    ports:
+      - 8000:8888
+    env_file:
+      - ./docker-jupyter-spark/docker-compose.env
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - PYSPARK_PYTHON=/usr/bin/python3
+      - PYSPARK_DRIVER_PYTHON=/opt/conda/bin/python
 
   zookeeper: 
     container_name: zookeeper
@@ -256,7 +323,14 @@ services:
       - "2181:2181"
     volumes:
       - zookeeper:/var/lib/zookeeper
+    networks:
+       - DL-net
 
+networks:
+  DL-net:
+    external:
+      name: DL-net
+      
 volumes:
   namenode:
   datanode:
@@ -264,3 +338,5 @@ volumes:
   zookeeper:
   kafka:
   nifi:
+  zeppelin:
+  jupyter_data:

@@ -69,7 +69,7 @@
       "properties": {
         "default.url": {
           "name": "default.url",
-          "value": "jdbc:postgresql://localhost:5432/",
+          "value": "jdbc:postgresql://172.16.21.13:3306/",
           "type": "string"
         },
         "default.driver": {
@@ -313,7 +313,7 @@
       "properties": {
         "hdfs.url": {
           "name": "hdfs.url",
-          "value": "http://localhost:50070/webhdfs/v1/",
+          "value": "http://172.16.21.13:9870/webhdfs/v1/",
           "type": "url"
         },
         "hdfs.user": {
