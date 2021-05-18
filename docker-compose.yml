@@ -13,6 +13,7 @@ services:
     volumes:
       - namenode:/hadoop/dfs/name
       - ./zeppelin/examples:/opt/sansa-examples
+      - ./hdfs/install.properties:/opt/ranger-hdfs-plugin/install.properties
     environment:
       - CLUSTER_NAME=test
     env_file:
@@ -192,6 +193,8 @@ services:
       - zookeeper
     ports: 
       - "49153:8080"
+      - "8087:8087"
+      - "7071:7071"
     volumes:
       - /tmp/hadoop-conf:/hadoop-conf
       - ./nifi/conf:/opt/nifi/conf
@@ -208,9 +211,6 @@ services:
     build: .
     links:
      - zookeeper
-    expose:
-      - "8084"
-      - "9092"
     ports:
       - "8084:8084"
       - "9092:9092"
@@ -282,8 +282,18 @@ services:
       - "4040:8080"
     volumes:
       - ./zeppelin/datadrive:/datadrive
-      - ./zeppelin/pyspark-notebooks:/zeppelin/notebook
+      - ./zeppelin/pyspark-notebooks:/opt/zeppelin/notebook
+      - ./data:/data
+      - ./data:/opt/zeppelin/data
+      - ./zeppelin/logs:/opt/zeppelin/logs
+      - ./zeppelin/notebooks:/zeppelin/notebook
+      - ./zeppelin/examples:/opt/sansa-examples
       - ./zeppelin/zeppelin-interpreters/interpreter.json:/zeppelin/conf/interpreter.json
+    environment:
+      CORE_CONF_fs_defaultFS: "hdfs://namenode:8020"
+      SPARK_MASTER: "spark://spark-master:7077"
+      MASTER: "spark://spark-master:7077"
+      SPARK_SUBMIT_OPTIONS: "--jars /root/docker-hadoop/zeppelin/conf/spark-streaming-kafka-0-10-assembly_2.12-3.1.1.jar"
     networks:
       - DL-net
       
@@ -355,7 +365,23 @@ services:
       - zookeeper:/var/lib/zookeeper
     networks:
        - DL-net
-      
+  minio:
+    image: docker.io/bitnami/minio:2021
+    ports:
+      - '9010:9000'
+    volumes:
+      - 'minio_data:/data'
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://172.16.21.13:9010/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3      
+
 volumes:
   namenode:
   datanode:
@@ -366,6 +392,8 @@ volumes:
   zeppelin:
   jupyter_data:
   db_data:
+  minio_data:
+    driver: local
 
 networks:
   DL-net:

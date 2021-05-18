@@ -19,4 +19,8 @@ if [ "`ls -A $namedir`" == "" ]; then
   $HADOOP_HOME/bin/hdfs --config $HADOOP_CONF_DIR namenode -format $CLUSTER_NAME
 fi
 
+$RANGER_HDFS_PLUGIN_HOME/enable-hdfs-plugin.sh
+
 $HADOOP_HOME/bin/hdfs --config $HADOOP_CONF_DIR namenode
+
+
