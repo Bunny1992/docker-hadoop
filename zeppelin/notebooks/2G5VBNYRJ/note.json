@@ -1,0 +1,132 @@
+{
+  "paragraphs": [
+    {
+      "text": "%spark\nsc.version",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-10 10:12:19.636",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "res5: String \u003d 2.2.1\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1620586682951_-1444249770",
+      "id": "20210509-185802_1257946659",
+      "dateCreated": "2021-05-09 18:58:02.951",
+      "dateStarted": "2021-05-10 10:12:19.697",
+      "dateFinished": "2021-05-10 10:12:20.690",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%spark\nvar file \u003d sc.textFile(\"hdfs://namenode:8020//user/minio/wordcount/in/Textfile.txt\")\n\nval counts \u003d file.flatMap { _.toLowerCase.split(\"\\\\W+\") }\n                 .map { (_,1) }\n                 .reduceByKey(_ + _)\n                 \ncounts.collect().foreach(println(_))\ncounts.saveAsTextFile(\"hdfs://namenode:8020//user/minio/wordcount/out\")\n\n",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-12 06:52:43.493",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "file: org.apache.spark.rdd.RDD[String] \u003d hdfs://namenode:8020//user/minio/wordcount/in/Textfile.txt MapPartitionsRDD[29] at textFile at \u003cconsole\u003e:28\ncounts: org.apache.spark.rdd.RDD[(String, Int)] \u003d ShuffledRDD[32] at reduceByKey at \u003cconsole\u003e:32\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1620641571004_57246410",
+      "id": "20210510-101251_1184377905",
+      "dateCreated": "2021-05-10 10:12:51.005",
+      "dateStarted": "2021-05-12 06:52:43.517",
+      "dateFinished": "2021-05-12 06:52:45.265",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%spark\n/*\nWritten by Trevor Grant 10/22/2015\n Inspired by word count example at: http://spark.apache.org/examples.html\n*/ \n\n\nval text \u003d sc.parallelize(List(\"In the time of chimpanzees, I was a monkey\",  // some lines of text to analyze\n\"Butane in my veins and I\u0027m out to cut the junkie\",\n\"With the plastic eyeballs, spray paint the vegetables\",\n\"Dog food stalls with the beefcake pantyhose\",\n\"Kill the headlights and put it in neutral\",\n\"Stock car flamin\u0027 with a loser in the cruise control\",\n\"Baby\u0027s in Reno with the Vitamin D\",\n\"Got a couple of couches, sleep on the love seat\",\n\"Someone came in sayin\u0027 I\u0027m insane to complain\",\n\"About a shotgun wedding and a stain on my shirt\",\n\"Don\u0027t believe everything that you breathe\",\n\"You get a parking violation and a maggot on your sleeve\",\n\"So shave your face with some mace in the dark\",\n\"Savin\u0027 all your food stamps and burnin\u0027 down the trailer park\",\n\"Yo, cut it\"))\n\n\n/*  The meat and potatoes:\n        this tells flink to iterate through the elements, in this case strings,\n        transform the string to lower case and split the string at white space into individual words\n        then finally aggregate the occurance of each word. \n        \n        This creates the count variable which is a list of tuples of the form (word, occurances)\n*/\nval counts \u003d text.flatMap { _.toLowerCase.split(\"\\\\W+\") }\n                 .map { (_,1) }\n                 .reduceByKey(_ + _)\n\ncounts.collect().foreach(println(_))  // execute the script and print each element in the counts list\n/*counts.saveAsTextFile(\"/tmp/wordcount\")",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-10 10:11:54.059",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "(shotgun,1)\n(burnin,1)\n(maggot,1)\n(someone,1)\n(stock,1)\n(that,1)\n(it,2)\n(mace,1)\n(about,1)\n(chimpanzees,1)\n(came,1)\n(shirt,1)\n(trailer,1)\n(on,3)\n(i,3)\n(dark,1)\n(with,5)\n(some,1)\n(stain,1)\n(kill,1)\n(sayin,1)\n(veins,1)\n(in,7)\n(dog,1)\n(breathe,1)\n(headlights,1)\n(my,2)\n(sleep,1)\n(face,1)\n(savin,1)\n(time,1)\n(out,1)\n(cruise,1)\n(control,1)\n(complain,1)\n(paint,1)\n(your,3)\n(m,2)\n(the,11)\n(yo,1)\n(violation,1)\n(d,1)\n(s,1)\n(park,1)\n(got,1)\n(plastic,1)\n(put,1)\n(seat,1)\n(believe,1)\n(vegetables,1)\n(monkey,1)\n(you,2)\n(spray,1)\n(was,1)\n(don,1)\n(insane,1)\n(pantyhose,1)\n(stamps,1)\n(a,7)\n(t,1)\n(down,1)\n(everything,1)\n(car,1)\n(all,1)\n(sleeve,1)\n(to,2)\n(get,1)\n(loser,1)\n(reno,1)\n(flamin,1)\n(love,1)\n(neutral,1)\n(stalls,1)\n(of,2)\n(vitamin,1)\n(food,2)\n(eyeballs,1)\n(parking,1)\n(couple,1)\n(couches,1)\n(so,1)\n(wedding,1)\n(baby,1)\n(butane,1)\n(and,5)\n(shave,1)\n(junkie,1)\n(cut,2)\n(beefcake,1)\ntext: org.apache.spark.rdd.RDD[String] \u003d ParallelCollectionRDD[0] at parallelize at \u003cconsole\u003e:30\ncounts: org.apache.spark.rdd.RDD[(String, Int)] \u003d ShuffledRDD[3] at reduceByKey at \u003cconsole\u003e:56\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1620586719504_1677014275",
+      "id": "20210509-185839_133993837",
+      "dateCreated": "2021-05-09 18:58:39.504",
+      "dateStarted": "2021-05-09 19:17:39.122",
+      "dateFinished": "2021-05-09 19:19:49.377",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "WordCount",
+  "id": "2G5VBNYRJ",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {
+    "spark:shared_process": []
+  },
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {}
+}

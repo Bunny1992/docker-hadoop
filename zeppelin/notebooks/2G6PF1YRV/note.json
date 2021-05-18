@@ -1,0 +1,73 @@
+{
+  "paragraphs": [
+    {
+      "text": "%spark\nsc.version",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-06 08:55:16.677",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "res1: String \u003d 2.2.1\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1620216902573_308899541",
+      "id": "20210505-121502_1640393370",
+      "dateCreated": "2021-05-05 12:15:02.573",
+      "dateStarted": "2021-05-06 08:55:16.721",
+      "dateFinished": "2021-05-06 08:56:04.989",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%spark\n",
+      "user": "anonymous",
+      "dateUpdated": "2021-05-05 12:15:09.879",
+      "config": {},
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1620216909877_-1242507702",
+      "id": "20210505-121509_518158830",
+      "dateCreated": "2021-05-05 12:15:09.877",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "Untitled Note 1",
+  "id": "2G6PF1YRV",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {
+    "producer:shared_process": [],
+    "sh:shared_process": [],
+    "spark:shared_process": [],
+    "consumer:shared_process": []
+  },
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {}
+}
